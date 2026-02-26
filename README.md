@@ -8,10 +8,12 @@ A top-down **2.5D-looking** action RPG starter inspired by Diablo 2, designed so
 - Creepy castle-themed map with border walls
 - Player/enemy sprites
 - WASD movement + melee combat
+- Secondary AOE burst attack that upgrades when leveling
 - Enemy spawning, chasing, and attacking
 - Gold + random item drops
 - Limited-size inventory
-- Random weapons (auto-equip best) and health potions
+- Inventory menu to inspect and swap weapons
+- Random weapons (with attributes) and health potions
 - Potions are consumed with `Q`
 - Restart after death with `R`
 - XP and leveling progression
@@ -41,7 +43,11 @@ Built file:
 ## Controls
 
 - `W A S D` move
-- `SPACE` attack
+- `SPACE` melee attack
+- `E` AOE burst
+- `I` inventory menu
+- `UP / DOWN` select weapon in menu
+- `ENTER` equip selected weapon
 - `Q` drink potion
 - `R` restart after death
 - `ESC` quit

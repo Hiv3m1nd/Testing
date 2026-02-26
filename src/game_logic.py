@@ -29,6 +29,8 @@ class Vec2:
 class Weapon:
     name: str
     damage_bonus: int
+    required_level: int
+    speed_rating: int
     color: tuple[int, int, int]
 
 
@@ -68,6 +70,16 @@ class Inventory:
                 return self.items.pop(idx)
         return None
 
+    def list_weapons(self) -> list[Weapon]:
+        return [item for item in self.items if isinstance(item, Weapon)]
+
+    def equip_weapon_by_index(self, weapon_index: int) -> bool:
+        weapons = self.list_weapons()
+        if 0 <= weapon_index < len(weapons):
+            self.equipped_weapon = weapons[weapon_index]
+            return True
+        return False
+
 
 class Player:
     def __init__(self) -> None:
@@ -76,10 +88,17 @@ class Player:
         self.radius = 16
         self.max_hp = 120
         self.hp = self.max_hp
+
         self.base_damage = 18
         self.attack_range = 58
         self.attack_cooldown = 0.36
         self.attack_timer = 0.0
+
+        self.aoe_base_damage = 12
+        self.aoe_radius = 115
+        self.aoe_cooldown = 3.8
+        self.aoe_timer = 0.0
+
         self.gold = 0
         self.level = 1
         self.xp = 0
@@ -90,6 +109,13 @@ class Player:
     def damage(self) -> int:
         bonus = self.inventory.equipped_weapon.damage_bonus if self.inventory.equipped_weapon else 0
         return self.base_damage + bonus
+
+    @property
+    def aoe_damage(self) -> int:
+        bonus = 0
+        if self.inventory.equipped_weapon:
+            bonus = max(1, self.inventory.equipped_weapon.damage_bonus // 2)
+        return self.aoe_base_damage + bonus
 
     def move(self, dx: float, dy: float, dt: float) -> None:
         length = math.hypot(dx, dy)
@@ -102,9 +128,14 @@ class Player:
     def can_attack(self) -> bool:
         return self.attack_timer <= 0
 
+    def can_aoe_attack(self) -> bool:
+        return self.aoe_timer <= 0
+
     def update(self, dt: float) -> None:
         if self.attack_timer > 0:
             self.attack_timer -= dt
+        if self.aoe_timer > 0:
+            self.aoe_timer -= dt
 
     def gain_xp(self, amount: int) -> bool:
         self.xp += amount
@@ -114,8 +145,10 @@ class Player:
             self.level += 1
             self.next_level_xp = int(self.next_level_xp * 1.28)
             self.max_hp += 15
-            # no automatic healing on kill/level-up
             self.base_damage += 3
+            self.aoe_base_damage += 2
+            self.aoe_radius += 8
+            self.aoe_cooldown = max(1.8, self.aoe_cooldown - 0.12)
             leveled_up = True
         return leveled_up
 
@@ -143,7 +176,6 @@ def clamp(value: float, low: float, high: float) -> float:
 
 
 def build_castle_map() -> list[list[int]]:
-    # 0=floor, 1=wall
     grid = [[0 for _ in range(MAP_COLS)] for _ in range(MAP_ROWS)]
     for y in range(MAP_ROWS):
         for x in range(MAP_COLS):
@@ -175,7 +207,14 @@ def random_weapon(enemy_level: int) -> Weapon:
     names = ["Rust Blade", "Crypt Fang", "Night Reaver", "Bone Cleaver"]
     colors = [(151, 171, 187), (171, 125, 194), (194, 112, 112), (184, 184, 121)]
     idx = random.randrange(len(names))
-    return Weapon(name=names[idx], damage_bonus=2 + enemy_level + random.randint(0, 3), color=colors[idx])
+    level_boost = max(1, enemy_level)
+    return Weapon(
+        name=names[idx],
+        damage_bonus=2 + level_boost + random.randint(0, 3),
+        required_level=max(1, level_boost - 1),
+        speed_rating=random.randint(2, 7),
+        color=colors[idx],
+    )
 
 
 def resolve_player_attack(player: Player, enemies: list[Enemy]) -> list[Loot]:
@@ -190,11 +229,30 @@ def resolve_player_attack(player: Player, enemies: list[Enemy]) -> list[Loot]:
         if enemy.hp <= 0:
             player.gain_xp(enemy.xp_reward)
             drop = Loot(enemy.pos.copy(), gold=random.randint(6, 22))
-            # Ensure item progression feels rewarding: each kill drops either a weapon or a potion.
             if random.random() < 0.45:
                 drop.weapon = random_weapon(max(1, enemy.xp_reward // 30))
             else:
                 drop.potion = Potion(heal_amount=random.randint(24, 45))
+            loot_drops.append(drop)
+    return loot_drops
+
+
+def resolve_player_aoe_attack(player: Player, enemies: list[Enemy]) -> list[Loot]:
+    loot_drops: list[Loot] = []
+    if not player.can_aoe_attack():
+        return loot_drops
+
+    player.aoe_timer = player.aoe_cooldown
+    targets = [e for e in enemies if e.is_alive and e.pos.distance_to(player.pos) <= player.aoe_radius]
+    for enemy in targets:
+        enemy.hp -= player.aoe_damage
+        if enemy.hp <= 0:
+            player.gain_xp(enemy.xp_reward)
+            drop = Loot(enemy.pos.copy(), gold=random.randint(4, 16))
+            if random.random() < 0.35:
+                drop.weapon = random_weapon(max(1, enemy.xp_reward // 35))
+            else:
+                drop.potion = Potion(heal_amount=random.randint(20, 38))
             loot_drops.append(drop)
     return loot_drops
 
