@@ -1,58 +1,51 @@
-# Darkstone Keep (Diablo-style starter clone)
+# Darkstone Keep (Diablo-style 2.5D starter clone)
 
-I built this so you can run and package a simple Diablo-like action RPG on Windows with almost no setup.
+A top-down **2.5D-looking** action RPG starter inspired by Diablo 2, designed so beginners can run it on Windows.
 
-## What this is
+## Features
 
-A small top-down hack-and-slash prototype inspired by Diablo 2:
-- WASD movement
-- Space to attack nearby enemies
-- Enemies chase and attack
-- Loot drops as gold
-- XP + level-ups with stat growth
-- "Game over" screen when HP reaches zero
+- 2.5D-style rendering and depth-sorted characters
+- Creepy castle-themed map with border walls
+- Player/enemy sprites
+- WASD movement + melee combat
+- Enemy spawning, chasing, and attacking
+- Gold + random item drops
+- Limited-size inventory
+- Random weapons (auto-equip best) and health potions
+- Potions are consumed with `Q`
+- XP and leveling progression
+- No automatic healing on kills/level-up
 
-This is **not a full Diablo 2 remake** (that would require a massive team and years), but this is a working foundation you can install and play.
+## Windows setup (easy)
 
-## 1) Install Python (one time)
+1. Install Python 3.11+ from https://www.python.org/downloads/windows/
+2. During install, check **Add Python to PATH**.
 
-- Download Python 3.11+ from: https://www.python.org/downloads/windows/
-- During install, check **"Add Python to PATH"**.
+## Run the game
 
-## 2) Run the game on Windows
+Double-click:
 
-1. Open this project folder.
-2. Double-click `run_game.bat`.
+- `run_game.bat`
 
-That script installs dependencies and launches the game.
+## Build an EXE
 
-## 3) Build an installable-style EXE
+Double-click:
 
-1. Double-click `build_windows_exe.bat`.
-2. Wait for build completion.
-3. Your app will be at: `dist/DarkstoneKeep.exe`
+- `build_windows_exe.bat`
 
-You can zip the `dist` folder and share the executable.
+Built file:
+
+- `dist/DarkstoneKeep.exe`
 
 ## Controls
 
-- `W A S D` = move
-- `SPACE` = attack
-- `ESC` = quit
+- `W A S D` move
+- `SPACE` attack
+- `Q` drink potion
+- `ESC` quit
 
-## Project files
+## Files
 
-- `src/main.py` - game loop + rendering
-- `src/game_logic.py` - gameplay systems
-- `tests/test_game_logic.py` - logic tests
-- `run_game.bat` - run on Windows
-- `build_windows_exe.bat` - package to EXE
-
-## Next upgrades (if you want me to keep going)
-
-- Character classes and skill tree
-- Inventory and item rarity system
-- Procedural dungeons
-- Bosses and quests
-- Sound effects + music
-- Better art + animation
+- `src/main.py` rendering/game loop/sprites/UI
+- `src/game_logic.py` combat, drops, inventory, map logic
+- `tests/test_game_logic.py` automated tests

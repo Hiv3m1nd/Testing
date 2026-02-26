@@ -6,8 +6,11 @@ from dataclasses import dataclass
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
-WORLD_WIDTH = 2400
-WORLD_HEIGHT = 2400
+WORLD_WIDTH = 2200
+WORLD_HEIGHT = 2200
+TILE_SIZE = 80
+MAP_COLS = WORLD_WIDTH // TILE_SIZE
+MAP_ROWS = WORLD_HEIGHT // TILE_SIZE
 
 
 @dataclass
@@ -23,34 +26,78 @@ class Vec2:
 
 
 @dataclass
+class Weapon:
+    name: str
+    damage_bonus: int
+    color: tuple[int, int, int]
+
+
+@dataclass
+class Potion:
+    heal_amount: int
+
+
+@dataclass
 class Loot:
     pos: Vec2
-    gold: int
+    gold: int = 0
+    weapon: Weapon | None = None
+    potion: Potion | None = None
+
+
+class Inventory:
+    def __init__(self, max_slots: int = 8) -> None:
+        self.max_slots = max_slots
+        self.items: list[Weapon | Potion] = []
+        self.equipped_weapon: Weapon | None = None
+
+    def has_space(self) -> bool:
+        return len(self.items) < self.max_slots
+
+    def add_item(self, item: Weapon | Potion) -> bool:
+        if not self.has_space():
+            return False
+        self.items.append(item)
+        if isinstance(item, Weapon) and (self.equipped_weapon is None or item.damage_bonus > self.equipped_weapon.damage_bonus):
+            self.equipped_weapon = item
+        return True
+
+    def consume_potion(self) -> Potion | None:
+        for idx, item in enumerate(self.items):
+            if isinstance(item, Potion):
+                return self.items.pop(idx)
+        return None
 
 
 class Player:
     def __init__(self) -> None:
         self.pos = Vec2(WORLD_WIDTH / 2, WORLD_HEIGHT / 2)
-        self.speed = 240.0
+        self.speed = 220.0
         self.radius = 16
         self.max_hp = 120
         self.hp = self.max_hp
-        self.damage = 24
-        self.attack_range = 48
-        self.attack_cooldown = 0.35
+        self.base_damage = 18
+        self.attack_range = 58
+        self.attack_cooldown = 0.36
         self.attack_timer = 0.0
         self.gold = 0
         self.level = 1
         self.xp = 0
         self.next_level_xp = 120
+        self.inventory = Inventory(max_slots=8)
+
+    @property
+    def damage(self) -> int:
+        bonus = self.inventory.equipped_weapon.damage_bonus if self.inventory.equipped_weapon else 0
+        return self.base_damage + bonus
 
     def move(self, dx: float, dy: float, dt: float) -> None:
         length = math.hypot(dx, dy)
         if length > 0:
             dx /= length
             dy /= length
-        self.pos.x = clamp(self.pos.x + dx * self.speed * dt, 0, WORLD_WIDTH)
-        self.pos.y = clamp(self.pos.y + dy * self.speed * dt, 0, WORLD_HEIGHT)
+        self.pos.x = clamp(self.pos.x + dx * self.speed * dt, 40, WORLD_WIDTH - 40)
+        self.pos.y = clamp(self.pos.y + dy * self.speed * dt, 40, WORLD_HEIGHT - 40)
 
     def can_attack(self) -> bool:
         return self.attack_timer <= 0
@@ -65,10 +112,10 @@ class Player:
         while self.xp >= self.next_level_xp:
             self.xp -= self.next_level_xp
             self.level += 1
-            self.next_level_xp = int(self.next_level_xp * 1.3)
-            self.max_hp += 18
-            self.hp = self.max_hp
-            self.damage += 4
+            self.next_level_xp = int(self.next_level_xp * 1.28)
+            self.max_hp += 15
+            # no automatic healing on kill/level-up
+            self.base_damage += 3
             leveled_up = True
         return leveled_up
 
@@ -77,8 +124,8 @@ class Enemy:
     def __init__(self, pos: Vec2, level: int) -> None:
         self.pos = pos
         self.radius = 14
-        self.speed = 90 + (level * 5)
-        self.max_hp = 46 + (level * 18)
+        self.speed = 82 + (level * 6)
+        self.max_hp = 42 + (level * 17)
         self.hp = self.max_hp
         self.damage = 8 + (level * 2)
         self.attack_range = 24
@@ -95,15 +142,40 @@ def clamp(value: float, low: float, high: float) -> float:
     return max(low, min(high, value))
 
 
+def build_castle_map() -> list[list[int]]:
+    # 0=floor, 1=wall
+    grid = [[0 for _ in range(MAP_COLS)] for _ in range(MAP_ROWS)]
+    for y in range(MAP_ROWS):
+        for x in range(MAP_COLS):
+            if x in {0, 1, MAP_COLS - 1, MAP_COLS - 2} or y in {0, 1, MAP_ROWS - 1, MAP_ROWS - 2}:
+                grid[y][x] = 1
+            elif x % 7 == 0 and y % 5 != 0 and random.random() < 0.55:
+                grid[y][x] = 1
+            elif y % 6 == 0 and x % 4 != 0 and random.random() < 0.4:
+                grid[y][x] = 1
+    center = MAP_ROWS // 2
+    for y in range(center - 2, center + 3):
+        for x in range(center - 3, center + 4):
+            grid[y][x] = 0
+    return grid
+
+
 def spawn_enemy_around_player(player_pos: Vec2, player_level: int) -> Enemy:
     angle = random.uniform(0, math.tau)
-    distance = random.uniform(300, 640)
+    distance = random.uniform(320, 620)
     pos = Vec2(
-        clamp(player_pos.x + math.cos(angle) * distance, 24, WORLD_WIDTH - 24),
-        clamp(player_pos.y + math.sin(angle) * distance, 24, WORLD_HEIGHT - 24),
+        clamp(player_pos.x + math.cos(angle) * distance, 64, WORLD_WIDTH - 64),
+        clamp(player_pos.y + math.sin(angle) * distance, 64, WORLD_HEIGHT - 64),
     )
     level = max(1, player_level + random.choice([-1, 0, 0, 1]))
     return Enemy(pos, level)
+
+
+def random_weapon(enemy_level: int) -> Weapon:
+    names = ["Rust Blade", "Crypt Fang", "Night Reaver", "Bone Cleaver"]
+    colors = [(151, 171, 187), (171, 125, 194), (194, 112, 112), (184, 184, 121)]
+    idx = random.randrange(len(names))
+    return Weapon(name=names[idx], damage_bonus=2 + enemy_level + random.randint(0, 3), color=colors[idx])
 
 
 def resolve_player_attack(player: Player, enemies: list[Enemy]) -> list[Loot]:
@@ -117,7 +189,13 @@ def resolve_player_attack(player: Player, enemies: list[Enemy]) -> list[Loot]:
         enemy.hp -= player.damage
         if enemy.hp <= 0:
             player.gain_xp(enemy.xp_reward)
-            loot_drops.append(Loot(enemy.pos.copy(), gold=random.randint(8, 24)))
+            drop = Loot(enemy.pos.copy(), gold=random.randint(6, 22))
+            roll = random.random()
+            if roll < 0.18:
+                drop.weapon = random_weapon(max(1, enemy.xp_reward // 30))
+            elif roll < 0.42:
+                drop.potion = Potion(heal_amount=random.randint(24, 45))
+            loot_drops.append(drop)
     return loot_drops
 
 
@@ -134,10 +212,9 @@ def update_enemies(player: Player, enemies: list[Enemy], dt: float) -> int:
                 dy = (player.pos.y - enemy.pos.y) / distance
                 enemy.pos.x += dx * enemy.speed * dt
                 enemy.pos.y += dy * enemy.speed * dt
-        else:
-            if enemy.attack_timer <= 0:
-                incoming_damage += enemy.damage
-                enemy.attack_timer = enemy.attack_cooldown
+        elif enemy.attack_timer <= 0:
+            incoming_damage += enemy.damage
+            enemy.attack_timer = enemy.attack_cooldown
 
         if enemy.attack_timer > 0:
             enemy.attack_timer -= dt
@@ -145,14 +222,19 @@ def update_enemies(player: Player, enemies: list[Enemy], dt: float) -> int:
     return incoming_damage
 
 
-def collect_nearby_loot(player: Player, loot_items: list[Loot]) -> int:
-    collected = 0
+def collect_nearby_loot(player: Player, loot_items: list[Loot]) -> tuple[int, int]:
+    collected_gold = 0
+    collected_items = 0
     survivors: list[Loot] = []
     for loot in loot_items:
-        if loot.pos.distance_to(player.pos) <= 28:
+        if loot.pos.distance_to(player.pos) <= 32:
             player.gold += loot.gold
-            collected += loot.gold
+            collected_gold += loot.gold
+            if loot.weapon and player.inventory.add_item(loot.weapon):
+                collected_items += 1
+            if loot.potion and player.inventory.add_item(loot.potion):
+                collected_items += 1
         else:
             survivors.append(loot)
     loot_items[:] = survivors
-    return collected
+    return collected_gold, collected_items
