@@ -20,7 +20,7 @@ def test_level_up_does_not_auto_heal() -> None:
     assert player.hp == 30
 
 
-def test_attack_kills_enemy_and_drops_loot() -> None:
+def test_attack_kills_enemy_and_always_drops_item_loot() -> None:
     player = Player()
     enemy = Enemy(Vec2(player.pos.x + 10, player.pos.y + 10), level=1)
     enemy.hp = 1
@@ -28,6 +28,7 @@ def test_attack_kills_enemy_and_drops_loot() -> None:
     assert enemy.hp <= 0
     assert len(loot) == 1
     assert loot[0].gold >= 6
+    assert (loot[0].weapon is not None) or (loot[0].potion is not None)
 
 
 def test_enemy_damages_player_when_in_range() -> None:

@@ -13,6 +13,7 @@ A top-down **2.5D-looking** action RPG starter inspired by Diablo 2, designed so
 - Limited-size inventory
 - Random weapons (auto-equip best) and health potions
 - Potions are consumed with `Q`
+- Restart after death with `R`
 - XP and leveling progression
 - No automatic healing on kills/level-up
 
@@ -42,6 +43,7 @@ Built file:
 - `W A S D` move
 - `SPACE` attack
 - `Q` drink potion
+- `R` restart after death
 - `ESC` quit
 
 ## Files

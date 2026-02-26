@@ -190,10 +190,10 @@ def resolve_player_attack(player: Player, enemies: list[Enemy]) -> list[Loot]:
         if enemy.hp <= 0:
             player.gain_xp(enemy.xp_reward)
             drop = Loot(enemy.pos.copy(), gold=random.randint(6, 22))
-            roll = random.random()
-            if roll < 0.18:
+            # Ensure item progression feels rewarding: each kill drops either a weapon or a potion.
+            if random.random() < 0.45:
                 drop.weapon = random_weapon(max(1, enemy.xp_reward // 30))
-            elif roll < 0.42:
+            else:
                 drop.potion = Potion(heal_amount=random.randint(24, 45))
             loot_drops.append(drop)
     return loot_drops

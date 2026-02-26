@@ -119,8 +119,19 @@ def draw_scene(
     draw_text(screen, f"Inventory: {len(player.inventory.items)}/{player.inventory.max_slots}", (12, 74), (210, 214, 223), font)
     weapon = player.inventory.equipped_weapon.name if player.inventory.equipped_weapon else "Bare hands"
     draw_text(screen, f"Weapon: {weapon}", (12, 94), (170, 186, 224), font)
-    draw_text(screen, "WASD move | SPACE attack | Q drink potion | ESC quit", (12, SCREEN_HEIGHT - 28), (200, 205, 214), font)
+    draw_text(screen, "WASD move | SPACE attack | Q drink potion | R restart | ESC quit", (12, SCREEN_HEIGHT - 28), (200, 205, 214), font)
 
+
+
+
+def reset_game_state() -> tuple[Player, list[Enemy], list[Loot], list[list[int]], bool, float]:
+    player = Player()
+    enemies: list[Enemy] = []
+    loot_items: list[Loot] = []
+    castle_map = build_castle_map()
+    game_over = False
+    spawn_timer = 0.0
+    return player, enemies, loot_items, castle_map, game_over, spawn_timer
 
 def run() -> None:
     pygame.init()
@@ -129,15 +140,9 @@ def run() -> None:
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("segoeui", 18)
 
-    player = Player()
-    enemies: list[Enemy] = []
-    loot_items: list[Loot] = []
-    castle_map = build_castle_map()
+    player, enemies, loot_items, castle_map, game_over, spawn_timer = reset_game_state()
     player_sprite = make_player_sprite()
     enemy_sprite = make_enemy_sprite()
-
-    spawn_timer = 0.0
-    game_over = False
 
     while True:
         dt = clock.tick(60) / 1000.0
@@ -155,6 +160,8 @@ def run() -> None:
                     potion = player.inventory.consume_potion()
                     if potion:
                         player.hp = int(clamp(player.hp + potion.heal_amount, 0, player.max_hp))
+                if event.key == pygame.K_r and game_over:
+                    player, enemies, loot_items, castle_map, game_over, spawn_timer = reset_game_state()
 
         if not game_over:
             keys = pygame.key.get_pressed()
@@ -183,7 +190,7 @@ def run() -> None:
             overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 180))
             screen.blit(overlay, (0, 0))
-            draw_text(screen, "You died in the castle ruins. Press ESC.", (SCREEN_WIDTH // 2 - 190, SCREEN_HEIGHT // 2), (244, 229, 191), font)
+            draw_text(screen, "You died in the castle ruins. Press R to restart or ESC to quit.", (SCREEN_WIDTH // 2 - 280, SCREEN_HEIGHT // 2), (244, 229, 191), font)
 
         pygame.display.flip()
 
