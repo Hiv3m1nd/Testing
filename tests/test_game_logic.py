@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from src.game_logic import (
     Enemy,
     Player,
@@ -34,6 +36,13 @@ def test_attack_kills_enemy_and_always_drops_item_loot() -> None:
     assert (loot[0].weapon is not None) or (loot[0].potion is not None)
 
 
+def test_attack_triggers_attack_animation_timer() -> None:
+    player = Player()
+    enemy = Enemy(Vec2(player.pos.x + 10, player.pos.y + 10), level=1)
+    _ = resolve_player_attack(player, [enemy])
+    assert player.attack_anim_timer > 0
+
+
 def test_aoe_attack_hits_multiple_enemies() -> None:
     player = Player()
     e1 = Enemy(Vec2(player.pos.x + 10, player.pos.y), level=1)
@@ -43,6 +52,22 @@ def test_aoe_attack_hits_multiple_enemies() -> None:
     loot = resolve_player_aoe_attack(player, [e1, e2])
     assert len(loot) == 2
     assert player.aoe_timer > 0
+
+
+def test_aoe_triggers_aoe_animation_timer() -> None:
+    player = Player()
+    e1 = Enemy(Vec2(player.pos.x + 10, player.pos.y), level=1)
+    _ = resolve_player_aoe_attack(player, [e1])
+    assert player.aoe_anim_timer > 0
+
+
+def test_higher_potion_drop_chance_paths_to_potion() -> None:
+    player = Player()
+    enemy = Enemy(Vec2(player.pos.x + 10, player.pos.y + 10), level=1)
+    enemy.hp = 1
+    with patch("random.random", return_value=0.95):
+        loot = resolve_player_attack(player, [enemy])
+    assert loot[0].potion is not None
 
 
 def test_enemy_damages_player_when_in_range() -> None:

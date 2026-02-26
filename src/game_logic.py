@@ -93,11 +93,13 @@ class Player:
         self.attack_range = 58
         self.attack_cooldown = 0.36
         self.attack_timer = 0.0
+        self.attack_anim_timer = 0.0
 
         self.aoe_base_damage = 12
         self.aoe_radius = 115
         self.aoe_cooldown = 3.8
         self.aoe_timer = 0.0
+        self.aoe_anim_timer = 0.0
 
         self.gold = 0
         self.level = 1
@@ -136,6 +138,10 @@ class Player:
             self.attack_timer -= dt
         if self.aoe_timer > 0:
             self.aoe_timer -= dt
+        if self.attack_anim_timer > 0:
+            self.attack_anim_timer -= dt
+        if self.aoe_anim_timer > 0:
+            self.aoe_anim_timer -= dt
 
     def gain_xp(self, amount: int) -> bool:
         self.xp += amount
@@ -223,13 +229,14 @@ def resolve_player_attack(player: Player, enemies: list[Enemy]) -> list[Loot]:
         return loot_drops
 
     player.attack_timer = player.attack_cooldown
+    player.attack_anim_timer = 0.16
     targets = [e for e in enemies if e.is_alive and e.pos.distance_to(player.pos) <= player.attack_range]
     for enemy in targets:
         enemy.hp -= player.damage
         if enemy.hp <= 0:
             player.gain_xp(enemy.xp_reward)
             drop = Loot(enemy.pos.copy(), gold=random.randint(6, 22))
-            if random.random() < 0.45:
+            if random.random() < 0.30:
                 drop.weapon = random_weapon(max(1, enemy.xp_reward // 30))
             else:
                 drop.potion = Potion(heal_amount=random.randint(24, 45))
@@ -243,13 +250,14 @@ def resolve_player_aoe_attack(player: Player, enemies: list[Enemy]) -> list[Loot
         return loot_drops
 
     player.aoe_timer = player.aoe_cooldown
+    player.aoe_anim_timer = 0.22
     targets = [e for e in enemies if e.is_alive and e.pos.distance_to(player.pos) <= player.aoe_radius]
     for enemy in targets:
         enemy.hp -= player.aoe_damage
         if enemy.hp <= 0:
             player.gain_xp(enemy.xp_reward)
             drop = Loot(enemy.pos.copy(), gold=random.randint(4, 16))
-            if random.random() < 0.35:
+            if random.random() < 0.20:
                 drop.weapon = random_weapon(max(1, enemy.xp_reward // 35))
             else:
                 drop.potion = Potion(heal_amount=random.randint(20, 38))

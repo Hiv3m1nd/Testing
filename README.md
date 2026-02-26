@@ -9,11 +9,12 @@ A top-down **2.5D-looking** action RPG starter inspired by Diablo 2, designed so
 - Player/enemy sprites
 - WASD movement + melee combat
 - Secondary AOE burst attack that upgrades when leveling
+- Attack and AOE visual pulse animations
 - Enemy spawning, chasing, and attacking
 - Gold + random item drops
 - Limited-size inventory
 - Inventory menu to inspect and swap weapons
-- Random weapons (with attributes) and health potions
+- Random weapons (with attributes) and increased health potion drops
 - Potions are consumed with `Q`
 - Restart after death with `R`
 - XP and leveling progression
@@ -45,7 +46,7 @@ Built file:
 - `W A S D` move
 - `SPACE` melee attack
 - `E` AOE burst
-- `I` inventory menu
+- `I` inventory menu (game pauses while open)
 - `UP / DOWN` select weapon in menu
 - `ENTER` equip selected weapon
 - `Q` drink potion

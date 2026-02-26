@@ -130,9 +130,12 @@ def draw_scene(
         lx, ly = world_to_screen(loot.pos, camera)
         pygame.draw.circle(screen, (212, 171, 54), (lx, ly), 5)
         if loot.weapon:
-            pygame.draw.rect(screen, loot.weapon.color, (lx - 3, ly - 14, 6, 10))
+            pygame.draw.polygon(screen, loot.weapon.color, [(lx - 2, ly - 16), (lx + 2, ly - 16), (lx + 5, ly - 4), (lx - 5, ly - 4)])
+            pygame.draw.rect(screen, (190, 154, 92), (lx - 2, ly - 2, 4, 4), border_radius=1)
         elif loot.potion:
-            pygame.draw.circle(screen, (180, 57, 79), (lx, ly - 10), 4)
+            pygame.draw.rect(screen, (198, 44, 76), (lx - 4, ly - 15, 8, 10), border_radius=2)
+            pygame.draw.rect(screen, (228, 201, 161), (lx - 2, ly - 18, 4, 3), border_radius=1)
+            pygame.draw.circle(screen, (255, 124, 160), (lx, ly - 10), 2)
 
     for enemy in sorted([e for e in enemies if e.is_alive], key=lambda e: e.pos.y):
         ex, ey = world_to_screen(enemy.pos, camera)
@@ -143,6 +146,13 @@ def draw_scene(
 
     px, py = world_to_screen(player.pos, camera)
     screen.blit(player_sprite, (px - 24, py - 56))
+
+    if player.attack_anim_timer > 0:
+        pulse = int(18 + (1 - player.attack_anim_timer / 0.16) * 28)
+        pygame.draw.circle(screen, (240, 226, 170), (px, py - 8), pulse, 2)
+    if player.aoe_anim_timer > 0:
+        aoe_pulse = int(player.aoe_radius * 0.25 + (1 - player.aoe_anim_timer / 0.22) * player.aoe_radius * 0.45)
+        pygame.draw.circle(screen, (126, 187, 255), (px, py - 8), aoe_pulse, 3)
 
     hp_ratio = max(0, player.hp / player.max_hp)
     xp_ratio = player.xp / player.next_level_xp if player.next_level_xp else 0
@@ -163,7 +173,7 @@ def draw_scene(
     draw_text(screen, f"Inventory: {len(player.inventory.items)}/{player.inventory.max_slots}", (12, 94), (210, 214, 223), font)
     weapon = player.inventory.equipped_weapon.name if player.inventory.equipped_weapon else "Bare hands"
     draw_text(screen, f"Weapon: {weapon}", (12, 114), (170, 186, 224), font)
-    draw_text(screen, "WASD move | SPACE melee | E AOE burst | I inventory | Q potion | R restart | ESC quit", (12, SCREEN_HEIGHT - 28), (200, 205, 214), font)
+    draw_text(screen, "WASD move | SPACE melee | E AOE burst | I inventory (pause) | Q potion | R restart | ESC quit", (12, SCREEN_HEIGHT - 28), (200, 205, 214), font)
 
     if inventory_open:
         draw_inventory_menu(screen, player, selected_weapon_index, font, pygame.font.SysFont("segoeui", 22, bold=True))
@@ -235,19 +245,19 @@ def run() -> None:
                 dy = float(keys[pygame.K_s]) - float(keys[pygame.K_w])
                 player.move(dx, dy, dt)
 
-            player.update(dt)
-            spawn_timer += dt
-            if spawn_timer >= 1.05 and len([e for e in enemies if e.is_alive]) < 22:
-                spawn_timer = 0
-                enemies.append(spawn_enemy_around_player(player.pos, player.level))
+                player.update(dt)
+                spawn_timer += dt
+                if spawn_timer >= 1.05 and len([e for e in enemies if e.is_alive]) < 22:
+                    spawn_timer = 0
+                    enemies.append(spawn_enemy_around_player(player.pos, player.level))
 
-            incoming_damage = update_enemies(player, enemies, dt)
-            if incoming_damage:
-                player.hp = int(clamp(player.hp - incoming_damage, 0, player.max_hp))
+                incoming_damage = update_enemies(player, enemies, dt)
+                if incoming_damage:
+                    player.hp = int(clamp(player.hp - incoming_damage, 0, player.max_hp))
 
-            collect_nearby_loot(player, loot_items)
-            if player.hp <= 0:
-                game_over = True
+                collect_nearby_loot(player, loot_items)
+                if player.hp <= 0:
+                    game_over = True
 
         camera = Vec2(player.pos.x - SCREEN_WIDTH / 2, player.pos.y - (SCREEN_HEIGHT / 2) / ISO_Y)
         draw_scene(
