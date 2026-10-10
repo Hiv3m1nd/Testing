@@ -16,7 +16,7 @@ from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-MODELS = Path(os.environ.get("KOKORO_DIR", "/tmp/claude-0/-home-user-Testing/e9a9e9b1-4420-50a9-bd82-ad323edc7d03/scratchpad/models"))
+MODELS = Path(os.environ.get("KOKORO_DIR", ROOT / "models"))  # kokoro-fp32.onnx + voices/*.bin (git-ignored)
 SR = 24000
 SAMPLES_PER_FRAME = 600  # one predicted duration unit = 25 ms at 24 kHz
 

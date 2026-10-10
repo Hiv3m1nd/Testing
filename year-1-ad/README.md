@@ -43,7 +43,7 @@ pip install onnxruntime onnx numpy scipy soundfile skia-python shapely pillow op
 pip install --no-deps --ignore-requires-python misaki==0.9.4
 apt-get install -y espeak-ng libegl1 libgl1 zstd
 # spaCy en_core_web_sm 3.8.0: from conda-forge (spacy-model-en_core_web_sm) or the spaCy releases
-# Kokoro-82M ONNX (fp32) + voices: set KOKORO_DIR to a folder with kokoro-fp32.onnx and voices/*.bin
+# Kokoro-82M ONNX (fp32) + voices: put kokoro-fp32.onnx and voices/*.bin in year-1-ad/models/ (or set KOKORO_DIR)
 
 python src/fetch_data.py        # AWS terrain tiles (~55 MB)
 python src/terrain.py           # relief textures

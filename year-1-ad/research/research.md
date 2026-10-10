@@ -143,7 +143,7 @@ eventful. Nothing in the episode is invented to make the year more exciting.
 
 ### Rome
 
-11. **"Augustus, was in his sixties"**: born 23 September 63 BC, so 63–64 in
+11. **"Augustus, was in his sixties"**: born 23 September 63 BC, so 62–63 in
     AD 1. On screen: "born 63 BC · in power since 31 BC" (Actium).
 12. **"His heirs were his grandsons, Gaius and Lucius, adopted as his sons."**
     CONTEXT. They were the sons of Julia and Agrippa, born 20 BC and 17 BC,
