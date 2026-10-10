@@ -1,0 +1,5 @@
+build/
+output/*.wav
+output/frames/
+__pycache__/
+*.pyc
