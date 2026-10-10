@@ -335,6 +335,8 @@ def s_changan(t):
     img = env.compose(E, t, dolly=(lerp(90, -90, u), lerp(-10, 10, u)), push=lerp(1.0, 1.07, ease_io(u)), mist=_mist)
     img = np.clip((img - 0.42) * 1.18 + 0.42, 0, 1) * np.array([1.06, 1.0, 0.9], np.float32)
     cards = smooth(seg(t, T.s(22) - 0.3, T.s(22) + 0.5))
+    yy = np.linspace(0, 1, H, dtype=np.float32)[:, None, None]
+    img = img * (1 - 0.45 * np.exp(-((yy - 0.24) / 0.16) ** 2))
     img = img * (1 - 0.5 * cards)
     cv = Canvas.from_float(np.clip(img, 0, 1))
     fx.dust(cv, t, n=50, alpha=0.3, rgb=(1.0, 0.92, 0.8), drift=(-6, -4))
@@ -374,12 +376,13 @@ def s_pheasant(t):
     yy = np.linspace(0, 1, H, dtype=np.float32)[:, None]
     img += (np.clip(fog - 0.4, 0, 1) * np.exp(-((yy - 0.6) / 0.12) ** 2) * 0.22)[..., None] * np.array([0.7, 0.8, 0.9], np.float32)
     t_zhou, t_title, t_arr = T.w(24, "Duke"), T.s(25), T.s(26)
+    t_named = T.w(25, "named")
     # ghost characters of the Duke of Zhou
-    az = fade_io(t, t_zhou - 0.3, t_title + 0.6, 0.9, 0.6)
+    az = fade_io(t, t_zhou - 0.3, t_named, 0.9, 0.6)
     cv = Canvas.from_float(np.clip(img, 0, 1))
     if az > 0:
         draw_text(cv, "周公", W / 2, 1000, font("kai", 560), (0.6, 0.7, 0.8), az * 0.13, glow=30)
-    ab = smooth(seg(t, T.s(23) - 0.4, T.s(23) + 1.4)) * (1 - smooth(seg(t, t_title - 0.4, t_title + 0.3)))
+    ab = smooth(seg(t, T.s(23) - 0.4, T.s(23) + 1.4)) * (1 - smooth(seg(t, t_named - 0.6, t_named + 0.1)))
     ab = max(ab, smooth(seg(t, t_arr - 0.2, t_arr + 0.8)))
     rise = (1 - smooth(seg(t, T.s(23) - 0.4, T.s(23) + 1.6))) * 40
     later = smooth(seg(t, t_arr - 0.2, t_arr + 0.8))
@@ -390,17 +393,17 @@ def s_pheasant(t):
     draw_text(cv, "白雉", W / 2, 360, font("kai", 120), IVORY, aw, glow=14)
     draw_text(cv, "THE WHITE PHEASANT", W / 2, 440, font("cinzel", 44, 700), PALE_GOLD, aw, tracking=0.25)
     draw_text(cv, "brought by envoys from the far south", W / 2, 498, font("garamond-italic", 42, 500), IVORY, aw * 0.9)
-    adz = fade_io(t, t_zhou - 0.2, t_title, 0.5, 0.5)
+    adz = fade_io(t, t_zhou - 0.2, t_title + 0.9, 0.5, 0.5)
     draw_text(cv, "THE DUKE OF ZHOU", W / 2, 360, font("cinzel", 52, 700), PALE_GOLD, adz, tracking=0.2, glow=10)
     draw_text(cv, "regent for the boy King Cheng,", W / 2, 425, font("garamond-italic", 44, 500), IVORY, adz * 0.9)
     draw_text(cv, "around the 11th century BC", W / 2, 478, font("garamond-italic", 44, 500), IVORY, adz * 0.9)
     # the title: 安漢公
-    at = fade_io(t, t_title - 0.3, T.e(26) + 0.6, 0.4, 0.6) * (1 - 0.7 * later)
+    at = fade_io(t, T.w(25, "Wang") - 0.3, T.e(26) + 0.6, 0.4, 0.6) * (1 - 0.7 * later)
     if at > 0:
         base = cv.to_float()
-        for k, (ch, word) in enumerate((("安", "Duke"), ("漢", "Secures"), ("公", "Han"))):
+        for k, (ch, word) in enumerate((("安", "named"), ("漢", "Duke"), ("公", "Secures"))):
             tw = T.w(25, word)
-            pr = seg(t, tw - 0.15, tw + 0.7)
+            pr = seg(t, tw - 0.25, tw + 0.75)
             if pr > 0:
                 fx.paste(base, fx.ink_char(ch, 230, pr, rgb=(0.97, 0.88, 0.62), bleed=0.6), 330, 470 + k * 275, alpha=at)
         cv = Canvas.from_float(np.clip(base, 0, 1))
@@ -511,7 +514,7 @@ def s_next(t):
 # ----------------------------------------------------------------------------- 12. end card
 def s_end(t):
     T = TL()
-    t0 = T.e(30) - 0.2
+    t0 = T.e(30) + 0.45
     img = fx.paper("parchment").copy() * 0.8
     cv = Canvas.from_float(img)
     fx.dust(cv, t, n=60, alpha=0.4)

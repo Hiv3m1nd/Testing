@@ -440,7 +440,7 @@ def compose():
     sfx.add(tn, whoosh(0.6, up=False), 0.6)
     sfx.add(tn + 0.05, boom(4.0, 40), 0.7)
     # 12. end card
-    te = T.e(30) - 0.2
+    te = T.e(30) + 0.45
     music.add(te + 0.3, pad([hz(n) for n in ["D2", "A2", "D3", "F3", "A3", "E4"]], DUR - te, attack=1.2, release=2.0,
                             bright=0.4), 0.6)
     sfx.add(te + 0.3, bowl(1175, 5), 0.6)

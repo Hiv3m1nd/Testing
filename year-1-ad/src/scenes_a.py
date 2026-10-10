@@ -185,14 +185,19 @@ def s_calendar(t):
     c.drawLine(X, 0, X, H, paint(GOLD, 0.25, stroke=3))
     c.drawLine(X, 0, X, H, paint(GOLD, 0.5, stroke=1.2))
     lo, hi = center - (H * 0.6) / scale, center + (H * 0.6) / scale
-    if scale >= 40:
-        marks = [(_ypos_ad(n), True) for n in range(1, 40)] + [(_ypos_bc(n), True) for n in range(1, 40)]
-    elif scale >= 6:
-        marks = [(_ypos_ad(n), n % 25 == 0) for n in range(5, 700, 5)] + [(_ypos_ad(1), True)]
-        marks += [(_ypos_bc(n), n % 25 == 0) for n in range(5, 200, 5)]
-    else:
-        marks = [(_ypos_ad(n), n % 100 == 0) for n in range(25, 800, 25)] + [(_ypos_ad(1), True)]
-        marks += [(_ypos_bc(n), n % 100 == 0) for n in range(25, 400, 25)]
+    steps = [1, 5, 10, 25, 50, 100, 200]
+    lab_step = next(st for st in steps if st * scale >= 72)
+    tick_step = next(st for st in steps if st * scale >= 14)
+    marks = []
+    for n in range(1, 800):
+        if n == 1 or n % tick_step == 0:
+            marks.append((_ypos_ad(n), n == 1 or n % lab_step == 0))
+    for n in range(1, 400):
+        if n == 1 or n % tick_step == 0:
+            marks.append((_ypos_bc(n), n == 1 or n % lab_step == 0))
+    if lab_step > 1:  # avoid "1 AD"/"1 BC" crowding the first round-number labels
+        marks = [(p, mj and not (abs(p) < 1 and lab_step * scale < 140)) if abs(p) < 1 else (p, mj)
+                 for p, mj in marks]
     fl = font("cinzel", 44, 600)
     for p, major in marks:
         if not (lo < p < hi):
@@ -209,7 +214,7 @@ def s_calendar(t):
             draw_text(cv, lab, X + 46, y + 15, fl, IVORY, 0.85 * fade_edge, tracking=0.08, align="left")
 
     # AD 525: Dionysius Exiguus
-    a525 = fade_io(t, T.w(1, "later") + 0.2, T.s(2) + 1.0, 0.6, 0.5)
+    a525 = fade_io(t, T.w(1, "later") + 0.2, T.s(2) + 0.55, 0.6, 0.4)
     if a525 > 0:
         y = sy(524.5)
         c.drawCircle(X, y, 22, paint(GOLD, a525 * 0.5, blur=14))
@@ -357,7 +362,7 @@ def s_yuanshi(t):
     img = img * (1 - wash[..., None] * 0.35)
     cy0 = 300
     size = 245
-    chars = [("元", T.w(7, "Yuanshi") - 0.1), ("始", T.w(7, "Yuanshi") + 0.35),
+    chars = [("元", T.w(7, "Yuanshi") - 0.55), ("始", T.w(7, "Yuanshi") - 0.1),
              ("元", T.w(7, "Original") - 0.1), ("年", T.w(7, "Original") + 0.4)]
     for k, (ch, t0) in enumerate(chars):
         pr = seg(t, t0, t0 + 0.9)
@@ -366,7 +371,7 @@ def s_yuanshi(t):
     cv = Canvas.from_float(np.clip(img, 0, 1))
     th = T.w(7, "Han")
     stamp = seg(t, th - 0.05, th + 0.15)
-    a_big = smooth(stamp) * (1 - smooth(seg(t, T.w(7, "Yuanshi") - 0.6, T.w(7, "Yuanshi") + 0.1)))
+    a_big = smooth(stamp) * (1 - smooth(seg(t, T.w(7, "Yuanshi") - 0.9, T.w(7, "Yuanshi") - 0.4)))
     if a_big > 0:
         sz = 420 * (1 + 0.25 * (1 - ease_out(stamp)))
         fx.seal(cv, W / 2, 820, sz, "漢", a=a_big * 0.9)
@@ -509,7 +514,7 @@ def s_empires(t):
     ts = T.w(10, "Seres")
     a_s = fade_io(t, ts - 0.3, T.e(10) + 0.4, 0.5, 0.4)
     if a_s > 0:
-        geo.region_label(cv, cam, 40.0, 100.0, "SERES", a_s, size=70, rgb=IVORY, tracking=0.3,
+        geo.region_label(cv, cam, 45.0, 97.0, "SERES", a_s, size=70, rgb=IVORY, tracking=0.3,
                          sub="‘the silk people’")
         # silk ribbon drifting west from China
         x0, y0, v0 = project(cam, [35.0], [100.0])

@@ -79,6 +79,84 @@ cost: **$0**.
 - **Render time.** About 45 min for the full film on 4 CPU cores; globe frames
   dominate at 1.5–4 s each.
 
-## 6. Can this produce two professional-quality episodes per day with minimal human intervention?
+## 6. Measured numbers
 
-See §7 for the full assessment.
+| Item | Value |
+|---|---|
+| Runtime | 2:53.6, under the 3:00 Shorts/Reels limit |
+| Narration | 438 words, 31 lines, 2:50 of speech; ~45 s to synthesise on CPU |
+| Frames | 5,208 at 30 fps, 1080×1920 |
+| Full render, 4 CPU cores | 46 min (globe frames 1.5–4 s each; coins, paper and type 0.2–0.8 s) |
+| Partial re-render after QA (11 of 16 chunks) | ~25 min |
+| Audio | −14.0 LUFS integrated, ≤ −1 dBTP, LRA ≈ 2.5 LU; voice ≈ 18–20 dB above the bed in the speech band during narration |
+| Cost | $0 (local compute, free/open data and models) |
+| Agent wall-clock, start to delivery | ≈ 3 h, including building every tool from scratch |
+
+## 7. Assessment: two professional-quality episodes per day, with minimal human intervention?
+
+**Short answer:**
+
+- **Compute is not the constraint:** two renders a day cost about 1.5 CPU-hours.
+- **Editorial quality is.**
+- With the toolkit built here, **two good, accurate episodes per day are
+  feasible with roughly 20–30 minutes of human review per episode.**
+- **"Professional" at a broadcast level** additionally needs a better voice
+  and a way to show people and daily life.
+
+**Why it scales**
+
+- Most of this session went into reusable infrastructure: globe and flights,
+  historical borders, relief artifacts, painted environments, ink calligraphy,
+  captions, music engine, mastering.
+- A new episode is mostly data: a script with scene tags, a few camera
+  keyframes, border tweaks, and one or two new artifacts or environments.
+- Timing flows from the narration automatically.
+- An agent can plausibly take an episode from research to master in **2–4
+  hours** of unattended work. Two parallel sessions cover a morning BC
+  release and an evening AD release.
+
+**What still needs a human, and why**
+
+1. **Fact review of the script, about 10–15 min.**
+   - Accuracy is the brand. Agents can verify a lot, but they can still
+     mis-date events or over-read a source. This session's sandbox couldn't
+     even open primary pages.
+   - A historian-in-the-loop sign-off on `research.md` before rendering is
+     cheap insurance.
+2. **Final watch, about 5–10 min.** Catch visual glitches and pronunciation
+   that the automated checks miss. I couldn't listen to my own audio; a human
+   ear can.
+3. **Quiet years.**
+   - Many years, especially deep BC, have few securely dated events. The
+     series needs an editorial policy so the system never pads or invents:
+     - Continue the multi-year threads.
+     - Do regional deep-dives.
+     - Run "state of the world" episodes.
+     - Allow shorter runtimes.
+   - That's a human decision about format, not an automation problem.
+
+**Gaps to close for higher production value**
+
+- **Imagery of people and places.** A GPU plus a permissively licensed local
+  image model, or network access to CC0 museum collections (the Met,
+  Smithsonian, Cleveland), would add portraits, artifacts and scenes of daily
+  life. The parallax and relief pipeline here can animate either.
+- **Voice.** Kokoro is clear but not warm. A larger local expressive TTS on a
+  GPU, or a consistent licensed narrator voice, would lift perceived quality
+  more than any visual change.
+- **Variety at volume.**
+  - At two episodes a day, repetition becomes the main risk.
+  - Grow the template library deliberately: battles and troop movements, city
+    reconstructions, trade and data visualisations, dynasty and family trees,
+    inscriptions in many scripts, artifacts from each culture.
+  - Track which templates each episode used.
+- **Series memory.**
+  - Keep a running "story bible" in machine-readable form: characters, ages,
+    open threads, the borders' state per year.
+  - Every episode then inherits continuity. `research.md` and `geo.py` are its
+    seed.
+
+**Verdict:** the approach works and is economically trivial to run. With a
+light daily human editorial pass, it can sustain two credible, accurate,
+visually distinctive episodes per day. With a GPU-backed voice and image model
+added, it would approach professional documentary quality at that cadence.

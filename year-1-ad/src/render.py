@@ -41,8 +41,8 @@ SHOTS = [
     (B.s_changan, 118.9, 129.4),
     (B.s_pheasant, 128.8, 149.7),
     (B.s_close, 149.1, 160.9),
-    (B.s_next, 160.3, 169.1),
-    (B.s_end, 168.5, END),
+    (B.s_next, 160.3, 169.7),
+    (B.s_end, 169.0, END),
 ]
 
 
