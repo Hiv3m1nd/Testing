@@ -6,7 +6,8 @@ with no GPU and no paid services.
 
 | Deliverable | Where |
 |---|---|
-| Finished film | `output/Year_1_AD.mp4` |
+| Finished film (full 1080×1920, ~4 Mbps, < 100 MB) | `output/Year_1_AD.mp4` |
+| High-bitrate master (10.4 Mbps, best for uploading) | `output/master/Year_1_AD_master.mp4.part-*`. Reassemble with `cat output/master/Year_1_AD_master.mp4.part-* > Year_1_AD_master.mp4` |
 | Narration script with timecodes | `script/narration.md` (source of truth: `src/script_data.py`) |
 | Research dossier: sources, claims, uncertainties, licences | `research/research.md` |
 | Technical report and feasibility assessment | `docs/technical_report.md` |

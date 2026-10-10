@@ -79,7 +79,36 @@ cost: **$0**.
 - **Render time.** About 45 min for the full film on 4 CPU cores; globe frames
   dominate at 1.5–4 s each.
 
-## 6. Measured numbers
+## 6. QA and iteration log
+
+The first full render was a draft. I reviewed it as contact sheets at 0.5 fps,
+plus full-resolution frames of every scene, and fixed the following:
+
+| Found in review | Fix |
+|---|---|
+| Calendar year labels piled into an unreadable column during the zoom from 1 AD to 525 AD | Adaptive tick/label spacing (1/5/10/25/50/100-year steps chosen by pixel spacing) |
+| 525 AD card scrolled under the header | Card fades out before the scroll |
+| Carved inscription washed out at phone size | Darker, warmer marble; deeper red rubrication; stronger raking-light falloff |
+| ~0.5 s of blank paper between the 漢 seal and the 元始 brushwork | Characters start writing while the seal fades |
+| "AUGUSTUS" and "THE HEIRS" titles overlapped mid-dissolve | Staggered title fades |
+| SERES label collided with HAN near the globe's limb | Moved north-west |
+| Chang'an subtitle unreadable against the bright dawn sky | Sky band behind the titles darkened |
+| ~2 s near-empty frame between the pheasant and 安漢公 | Bird holds until "named"; the three characters are written across "Wang Mang was named Duke Who Secures…" |
+| Extinguished lamp visible for only ~1.5 s before the end card | End card starts 0.6 s later (runtime unchanged) |
+| Mix: the music sat only 0–5 dB under the voice in early scenes (it had been ducked by a fixed amount) | Ducking driven by a target ratio; sub-drones tamed |
+| My voice compressor degraded intelligibility (ASR WER 0.37 → 0.49) | Removed; Kokoro output is already level (LRA 2.7 LU) |
+| `loudnorm` fell back to dynamic (pumping) mode | Look-ahead limiter, then an exact linear gain; final −14.0 LUFS, −1.2 dBTP |
+
+Only the 11 affected chunks of 16 were re-rendered and spliced. All seams fall
+inside unchanged material.
+
+**Final checks**
+
+- Full decode: no errors.
+- Narration vs. picture timeline: 0.0 ms offset at 0:30, 1:30 and 2:30.
+- Caption chunks are timed to word boundaries.
+
+## 7. Measured numbers
 
 | Item | Value |
 |---|---|
@@ -92,7 +121,7 @@ cost: **$0**.
 | Cost | $0 (local compute, free/open data and models) |
 | Agent wall-clock, start to delivery | ≈ 3 h, including building every tool from scratch |
 
-## 7. Assessment: two professional-quality episodes per day, with minimal human intervention?
+## 8. Assessment: two professional-quality episodes per day, with minimal human intervention?
 
 **Short answer:**
 
