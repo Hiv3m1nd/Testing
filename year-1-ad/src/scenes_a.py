@@ -322,12 +322,13 @@ def s_inscription(t):
     ndl, spec = relief.light(n, az, 24)
     amb = 0.42
     pg = np.clip(pig * 1.6, 0, 1)[..., None]
-    col = alb * (1 - pg * 0.92) + np.array([0.52, 0.07, 0.04], np.float32) * pg * 0.92
+    col = alb * (1 - pg * 0.95) + np.array([0.46, 0.05, 0.03], np.float32) * pg * 0.95
     img = col * (amb + 0.85 * ndl[..., None]) + (spec ** 30 * 0.25)[..., None]
     # raking light falloff across the slab
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     lx = W * (0.15 + 0.6 * seg(t, 27, 36))
-    img *= (0.62 + 0.55 * np.exp(-((xx - lx) / 900) ** 2 - ((yy - 900) / 1300) ** 2))[..., None]
+    img *= (0.5 + 0.55 * np.exp(-((xx - lx) / 850) ** 2 - ((yy - 900) / 1100) ** 2))[..., None]
+    img *= np.array([1.0, 0.96, 0.89], np.float32)
     s = lerp(1.0, 1.06, seg(t, 27, 36.5))
     M = np.float32([[s, 0, (1 - s) * W / 2], [0, s, (1 - s) * H * 0.48]])
     img = cv2.warpAffine(np.clip(img, 0, 1.2), M, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)

@@ -87,6 +87,7 @@ def main():
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--chunks", type=int, default=16)
     ap.add_argument("--frames", default=None)
+    ap.add_argument("--only", default=None, help="comma-separated chunk indices to re-render, then re-concat all")
     ap.add_argument("--stills", default=str(ROOT / "build" / "stills"))
     a = ap.parse_args()
     if a.frames:
@@ -105,8 +106,13 @@ def main():
     jobs = [(k, int(bounds[k]), int(bounds[k + 1]), segdir / f"seg_{k:03d}.mp4") for k in range(n)
             if bounds[k + 1] > bounds[k]]
     t0 = time.time()
+    todo = jobs
+    if a.only:
+        keep = {int(x) for x in a.only.split(",")}
+        todo = [j for j in jobs if j[0] in keep]
     with Pool(a.workers) as pool:
-        paths = pool.map(encode_chunk, jobs, chunksize=1)
+        pool.map(encode_chunk, todo, chunksize=1)
+    paths = [j[3] for j in jobs]
     lst = segdir / "list.txt"
     lst.write_text("".join(f"file '{p}'\n" for p in paths))
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy",

@@ -46,12 +46,13 @@ def s_rome(t):
     img = _darken(img, 0.62 * dim)
     cv = Canvas.from_float(np.clip(img, 0, 1))
     fx.dust(cv, t, n=70, alpha=0.45 * (1 - dim * 0.6), drift=(10, -6))
-    a_t = smooth(seg(t, T.s(11) - 0.2, T.s(11) + 0.6)) * (1 - dim)
+    out_t = 1 - smooth(seg(dim, 0.0, 0.45))
+    a_t = smooth(seg(t, T.s(11) - 0.2, T.s(11) + 0.6)) * out_t
     draw_text(cv, "ROME", W / 2, 250, font("cinzel", 40, 700), PALE_GOLD, a_t * 0.9, tracking=0.6, shadow=0.6)
     pa = seg(t, T.w(11, "Augustus") - 0.25, T.w(11, "Augustus") + 0.9)
-    draw_text_reveal(cv, "AUGUSTUS", W / 2, 420, font("cinzel", 132, 700), pa, PALE_GOLD, a=1 - dim, tracking=0.08,
+    draw_text_reveal(cv, "AUGUSTUS", W / 2, 420, font("cinzel", 132, 700), pa, PALE_GOLD, a=out_t, tracking=0.08,
                      glow=22, shadow=0.6)
-    a_s = smooth(seg(t, T.w(11, "sixties") - 0.3, T.w(11, "sixties") + 0.5)) * (1 - dim)
+    a_s = smooth(seg(t, T.w(11, "sixties") - 0.3, T.w(11, "sixties") + 0.5)) * out_t
     draw_text(cv, "born 63 BC · in power since 31 BC", W / 2, 500, font("garamond-italic", 48, 500), IVORY,
               a_s, shadow=0.8)
     lb = seg(t, T.w(11, "bloodline") - 0.3, T.w(11, "bloodline") + 0.9)
@@ -67,10 +68,11 @@ def s_rome(t):
         base = cv.to_float()
         fx.paste(base, coin, W / 2, 770 + (1 - p) * 40, alpha=dim)
         cv = Canvas.from_float(np.clip(base, 0, 1))
-        draw_text(cv, "THE HEIRS", W / 2, 330, font("cinzel", 44, 700), PALE_GOLD, dim * 0.9, tracking=0.5,
+        a_h = smooth(seg(dim, 0.55, 1.0))
+        draw_text(cv, "THE HEIRS", W / 2, 330, font("cinzel", 44, 700), PALE_GOLD, a_h * 0.9, tracking=0.5,
                   shadow=0.6)
         draw_text(cv, "silver denarius, struck c. 2 BC – 4 AD", W / 2, 392, font("garamond-italic", 42, 500),
-                  IVORY, dim * 0.85, shadow=0.6)
+                  IVORY, a_h * 0.85, shadow=0.6)
         for name, born, x, word in (("GAIUS", "born 20 BC", W / 2 - 170, "Gaius"),
                                     ("LUCIUS", "born 17 BC", W / 2 + 170, "Lucius")):
             a = smooth(seg(t, T.w(12, word) - 0.2, T.w(12, word) + 0.4)) * dim
