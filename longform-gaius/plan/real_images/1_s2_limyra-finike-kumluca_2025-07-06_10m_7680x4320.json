@@ -1,0 +1,39 @@
+{
+  "file": "1_s2_limyra-finike-kumluca_2025-07-06_10m_7680x4320.jpg",
+  "retrieved": "2026-10-15",
+  "category": "1_limyra",
+  "title": "Sentinel-2 true-colour (TCI) crop: Limyra, Finike bay, Kumluca plain and Gelidonya, 6 July 2025",
+  "creator": "European Union / ESA Copernicus Sentinel-2A (L2A processing by ESA; COG by Element 84 / AWS Open Data)",
+  "institution": "Copernicus programme",
+  "source_page_url": "https://registry.opendata.aws/sentinel-2-l2a-cogs/",
+  "source_image_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/S/TF/2025/7/S2A_36STF_20250706_0_L2A/TCI.tif",
+  "downloaded_from": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/S/TF/2025/7/S2A_36STF_20250706_0_L2A/TCI.tif",
+  "crop": {
+    "utm_zone": "36N (EPSG:32636)",
+    "pixel_size_m": 10,
+    "ul_easting": 211530,
+    "ul_northing": 4047380,
+    "width_px": 7680,
+    "height_px": 4320,
+    "limyra_px": [
+      3456,
+      2160
+    ],
+    "finike_px": [
+      3218,
+      2671
+    ],
+    "note": "Limyra (36.3436 N, 30.1708 E) sits at the exact centre of the crop."
+  },
+  "scene_cloud_cover_percent": 0.004823,
+  "licence": "Copernicus Sentinel data terms and conditions (free, full and open; commercial use and modification allowed)",
+  "licence_url": "https://sentinels.copernicus.eu/documents/247904/690755/Sentinel_Data_Legal_Notice",
+  "attribution_required": true,
+  "attribution_text": "Contains modified Copernicus Sentinel data [2025]",
+  "how_verified": "Scene STAC item S2A_36STF_20250706_0_L2A.json read from the bucket (cloud cover 0.005 %). Licence per EU Regulation 1159/2013 and the Sentinel Data Legal Notice (not fetchable here; well-established terms). Modern land use visible (greenhouses, towns).",
+  "accuracy_note": "Modern satellite view. Use for the establishing 'descend from orbit to Limyra' move; label 'today'.",
+  "width": 7680,
+  "height": 4320,
+  "bytes": 22856035,
+  "sha256": "87c9819b0edf43b0e5a806176d215a3759fbdaf06b1f296257bdc916d341d064"
+}

@@ -46,7 +46,7 @@ class Utterance:
 
 
 class Narrator:
-    def __init__(self, voice: str | dict = "af_heart", model: str = "kokoro-fp32-dur.onnx"):
+    def __init__(self, voice: str | dict = "af_heart", model: str = "kokoro-fp32-dur.onnx", british: bool = False):
         import onnxruntime as ort
         from misaki import en, espeak
 
@@ -57,7 +57,8 @@ class Narrator:
         opts.intra_op_num_threads = os.cpu_count() or 4
         self.sess = ort.InferenceSession(str(path), opts, providers=["CPUExecutionProvider"])
         self.vocab = json.load(open(ROOT / "assets/tts/kokoro_config.json"))["vocab"]
-        self.g2p = en.G2P(trf=False, british=False, fallback=espeak.EspeakFallback(british=False))
+        # British voices (bf_/bm_) need British G2P, or they speak with American vowels
+        self.g2p = en.G2P(trf=False, british=british, fallback=espeak.EspeakFallback(british=british))
         self.voice = self._load_voice(voice)
 
     @staticmethod

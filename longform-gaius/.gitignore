@@ -1,0 +1,13 @@
+build/
+__pycache__/
+plan/raw/
+plan/voice/
+plan/hdr_test/out/
+plan/hdr_test/__pycache__/
+# real images: keep every provenance sidecar, but only the binaries the film uses
+plan/real_images/*.jpg
+plan/real_images/*.png
+!plan/real_images/1_s2_limyra-finike-kumluca_2025-07-06_10m_7680x4320.jpg
+!plan/real_images/3_met_augustus_marble-portrait_07-286-115_dark.jpg
+!plan/real_images/3_met_possibly-gaius-caesar_head_front-dark.jpg
+plan/real_images/terrain/preview_hillshade_N36E030.png
